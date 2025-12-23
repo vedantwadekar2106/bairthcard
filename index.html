@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Romantic Birthday</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Video Background */
+        #video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+        }
+
+        /* Overlay for better text visibility */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        /* Heart animation */
+        .hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ff6b6b;
+            transform: rotate(45deg);
+            animation: float 6s ease-in infinite;
+        }
+
+        .heart:before, .heart:after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .heart:before {
+            top: -10px;
+            left: 0;
+        }
+
+        .heart:after {
+            top: 0;
+            left: -10px;
+        }
+
+        @keyframes float {
+            0% {
+                transform: rotate(45deg) translateY(100vh) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: rotate(45deg) translateY(-100vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Tooltip Container Styles */
+        .tooltip-container {
+            --background: rgba(255, 107, 107, 0.9);
+            --color: #ffffff;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color);
+            padding: 0.7em 1.8em;
+            border-radius: 15px;
+            text-transform: uppercase;
+            height: 60px;
+            width: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid var(--color);
+            background: transparent;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .tooltip-container span:last-child {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            background-color: var(--background);
+            border: 2px solid var(--background);
+            transform: scale(0);
+            transform-origin: center;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: 1;
+        }
+
+        .tooltip {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5em 1em;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            background: var(--background);
+            z-index: 10;
+            border-radius: 10px;
+            scale: 0;
+            text-transform: capitalize;
+            font-weight: 400;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            white-space: nowrap;
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip::before {
+            position: absolute;
+            content: "";
+            height: 0.6em;
+            width: 0.6em;
+            bottom: -0.2em;
+            left: 50%;
+            transform: translate(-50%) rotate(45deg);
+            background: var(--background);
+        }
+
+        .tooltip-container:hover .tooltip {
+            top: -45px;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            scale: 1;
+            animation: shake 0.5s ease-in-out both;
+        }
+
+        .tooltip-container:hover {
+            box-shadow: 0 12px 40px rgba(255, 107, 107, 0.4);
+            color: white;
+            border-color: transparent;
+        }
+
+        .tooltip-container:hover span:last-child {
+            transform: scale(1);
+        }
+
+        .tooltip-container:hover .text {
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        @keyframes shake {
+            0% { rotate: 0; }
+            25% { rotate: 7deg; }
+            50% { rotate: -7deg; }
+            75% { rotate: 1deg; }
+            100% { rotate: 0; }
+        }
+
+        /* Floating Next Page Button */
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 25px;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            animation: floatBtn 3s ease-in-out infinite;
+            transition: all 0.3s ease;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.7);
+        }
+
+        @keyframes floatBtn {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+
+        .control-btn {
+            background: rgba(255, 107, 107, 0.9);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 107, 107, 1);
+            transform: scale(1.05);
+        }
+
+        /* Success Message */
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            display: none;
+            backdrop-filter: blur(15px);
+            border: 2px solid #ff6b6b;
+        }
+
+        .success-message h2 {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+        }
+
+        .success-message p {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .continue-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .continue-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- Video Background -->
+    <video id="video-background" autoplay muted loop>
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-couple-walking-on-the-beach-at-sunset-4006-large.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Overlay -->
+    <div class="overlay"></div>
+
+    <!-- Floating Hearts -->
+    <div class="hearts" id="hearts-container"></div>
+
+    <!-- Tooltip Container -->
+    <div class="tooltip-container" id="main-button">
+        <span class="tooltip">Click for a surprise! 💖</span>
+        <span class="text">tap here bachaa🥰😘💕</span>
+        <span>I love you bachaa 💕🥰</span>
+    </div>
+
+    <!-- Floating Next Page Button -->
+     <a  href="main2.html"  >
+    <button class="floating-btn" id="next-page-btn">
+        Next Page 💫
+    </button></a>
+
+    <!-- Success Message -->
+    <div class="success-message" id="success-message">
+        <h2>✨ You're Amazing! ✨</h2>
+        <p>Ready for the next romantic surprise?</p>
+        <button class="continue-btn" id="continue-btn">Let's Continue! 💝</button>
+    </div>
+
+
+    <script>
+        // Create floating hearts
+        function createHearts() {
+            const container = document.getElementById('hearts-container');
+            const colors = ['#ff6b6b', '#ff8e8e', '#ffaaaa', '#ffcccc'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                heart.style.background = colors[Math.floor(Math.random() * colors.length)];
+                heart.style.width = (Math.random() * 20 + 10) + 'px';
+                heart.style.height = heart.style.width;
+                
+                container.appendChild(heart);
+                
+                // Remove heart after animation
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, 300);
+        }
+
+        // Video control functions
+        function toggleVideo() {
+            const video = document.getElementById('video-background');
+            const button = event.target;
+            
+            if (video.paused) {
+                video.play();
+                button.textContent = 'Pause Video';
+            } else {
+                video.pause();
+                button.textContent = 'Play Video';
+            }
+        }
+
+        function toggleHearts() {
+            const hearts = document.getElementById('hearts-container');
+            const button = event.target;
+            
+            if (hearts.style.display === 'none') {
+                hearts.style.display = 'block';
+                button.textContent = 'Hearts Off';
+            } else {
+                hearts.style.display = 'none';
+                button.textContent = 'Hearts On';
+            }
+        }
+
+        function changeVideo() {
+            const videos = [
+                'https://assets.mixkit.co/videos/preview/mixkit-couple-walking-on-the-beach-at-sunset-4006-large.mp4',
+                'https://assets.mixkit.co/videos/preview/mixkit-romantic-couple-watching-the-sunset-41353-large.mp4',
+                'https://assets.mixkit.co/videos/preview/mixkit-couple-hugging-on-a-swing-at-sunset-41354-large.mp4'
+            ];
+            
+            const video = document.getElementById('video-background');
+            const randomVideo = videos[Math.floor(Math.random() * videos.length)];
+            video.src = randomVideo;
+            video.play();
+        }
+
+        // Main button click event
+        document.getElementById('main-button').addEventListener('click', function() {
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 150);
+            
+            // Create burst of hearts on click
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    const rect = this.getBoundingClientRect();
+                    heart.style.left = (rect.left + rect.width/2) + 'px';
+                    heart.style.top = (rect.top + rect.height/2) + 'px';
+                    heart.style.animationDuration = '2s';
+                    heart.style.background = '#ff6b6b';
+                    
+                    document.getElementById('hearts-container').appendChild(heart);
+                    
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 2000);
+                }, i * 100);
+            }
+            
+            // Show success message
+            setTimeout(() => {
+                document.getElementById('success-message').style.display = 'block';
+            }, 500);
+        });
+
+        // Continue button in success message
+        document.getElementById('continue-btn').addEventListener('click', function() {
+            document.getElementById('success-message').style.display = 'none';
+            
+            // Show floating next page button
+            document.getElementById('next-page-btn').style.display = 'block';
+            
+            // Create celebration hearts
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.animationDuration = '3s';
+                    heart.style.background = '#ff6b6b';
+                    heart.style.width = '25px';
+                    heart.style.height = '25px';
+                    
+                    document.getElementById('hearts-container').appendChild(heart);
+                    
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 3000);
+                }, i * 150);
+            }
+        });
+
+        // Next page button click event
+        document.getElementById('next-page-btn').addEventListener('click', function() {
+            // Add a nice transition effect
+            this.style.transform = 'scale(1.2)';
+            this.style.opacity = '0.7';
+            
+            // You can change this URL to whatever page you want to open
+            setTimeout(() => {
+                window.location.href = 'next-page.html'; // Change this to your actual next page
+                // If you don't have a next page, you can use an alert for demonstration:
+                // alert('This would normally open the next page!');
+            }, 500);
+        });
+
+        // Initialize
+        createHearts();
+    </script>
+</body>
+</html>
